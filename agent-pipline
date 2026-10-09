@@ -1,0 +1,12 @@
+pipeline {
+    agent { label 'jk-agent'}
+
+    stages {
+        stage('Creating File') {
+            steps {
+                sh 'touch abc.txt'
+            }
+        }
+    }
+}
+

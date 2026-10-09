@@ -1,0 +1,9 @@
+echo "Cloning Repoistory"
+git clone https://github.com/theshubhamgour/Java-Learning.git
+echo " Changing the directory path"
+cd Java-Learning/First-Program
+echo "Compiling the JAVA Code"
+javac First.java
+echo "Executing the Compiled Code"
+java First.java
+

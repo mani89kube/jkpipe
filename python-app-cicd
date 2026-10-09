@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'main', changelog: false, poll: false,
+                    url: 'https://github.com/theshubhamgour/jenkins-tutorial.git'
+            }
+        }
+
+        stage('Build & Compile') {
+            steps {
+                dir('4-python-jenkins-docker-app') {
+                    sh 'python -m py_compile app.py'
+                }
+            }
+        }
+        stage('Unit Test') {
+            steps {
+                dir('4-python-jenkins-docker-app') {
+                    sh 'python3 -m unittest discover tests'
+                }
+            }
+        }
+       stage('Docker Build') {
+            steps {
+                dir('4-python-jenkins-docker-app') {
+                    sh 'docker build -t python-app:latest .'
+                }
+            }
+        }
+        stage('Docker Tag  & Push Image') {
+            steps {
+                dir('4-python-jenkins-docker-app') {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'DockerID',
+                            passwordVariable: 'dockerpassword',
+                            usernameVariable: 'dockeruser'
+                        )
+                    ]) {
+                        sh '''
+                        echo "$dockerpassword" | docker login -u "$dockeruser" --password-stdin
+                        docker tag python-app:latest ngap822/python-app:latest
+                        docker push ngap822/python-app:latest
+                        '''
+                    }
+                }
+            }
+        }
+
+    }
+}
+

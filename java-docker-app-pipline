@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Github Repository') {
+            steps {
+                git branch: 'main',
+                    changelog: false,
+                    poll: false,
+                    url: 'https://github.com/theshubhamgour/jenkins-tutorial.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'mvn clean package'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'mvn test'
+                }
+            }
+        }
+        stage('Compile') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'mvn compile'
+                }
+            }
+        }
+
+       stage('Docker Image Build') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'docker build -t java-jenkins-docker:latest .'
+                }
+            }
+        }
+       stage('Docker Image Tag') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'docker tag  java-jenkins-docker:latest ngap822/java-jenkins-docker:v1'
+                }
+            }
+        }
+        stage('Docker Login') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'docker login -u ngap822 -p Mrindia@123?'
+                }
+            }
+        }
+        stage('Docker Image Push') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'docker push ngap822/java-jenkins-docker:v1'
+                }
+            }
+        }
+        stage('Clean Work Space !!!') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    cleanWs()
+                }
+            }
+        }
+    }
+}
+
